@@ -1,0 +1,38 @@
+private void btnTransfer_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                using (TransactionScope ts = new TransactionScope())
+                {
+                    string conStr = @"data source=RABISH\TRAINING;initial catalog=StudentDB;integrated security=true";
+                    using (SqlConnection conn = new SqlConnection(conStr))
+                    {
+                       
+                        SqlCommand cmd1 = new SqlCommand("update AccountFirst set balance=balance-(@n) where accdid=(@m)", conn);
+                        cmd1.Parameters.AddWithValue("@n", txtAmount.Text);
+                        cmd1.Parameters.AddWithValue("@m", txtFrom.Text);
+                        conn.Open();
+                        cmd1.ExecuteNonQuery();
+                        SqlCommand cmd2 = new SqlCommand("update AccountSecond set balance =balance+(@p) where acctid=(@q)", conn);
+                        cmd2.Parameters.AddWithValue("@p", txtAmount.Text);
+                        cmd2.Parameters.AddWithValue("@q", txtTo.Text);
+                        cmd2.ExecuteNonQuery();
+                    }//con closes
+
+                    ts.Complete();
+                    MessageBox.Show("Money transfer successfully");
+
+                }//transaction scope class
+            }
+            catch (SqlException ex)
+            {
+
+                MessageBox.Show("SqlserverError - " + ex.Message);
+                MessageBox.Show("Transaction rollback succesfully");
+            }
+            catch (Exception ex)
+            {
+
+                MessageBox.Show("Error - " + ex.Message);
+            }
+        }
